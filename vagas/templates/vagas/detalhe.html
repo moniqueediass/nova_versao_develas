@@ -1,73 +1,70 @@
-{% extends "vagas/base.html" %} 
+{% extends "vagas/base.html" %}
 
-{% block titulo %}{{ vaga.titulo }} | DevElas{% endblock %} 
+{% block titulo %}{{ vaga.titulo }} | DevElas{% endblock %}
 
-{% block conteudo %} 
+{% block conteudo %}
+  <div class="container py-5">
+    <a class="btn btn-borda btn-sm mb-4" href="{% url 'mural' %}">
+      ← Voltar para o mural
+    </a>
 
-  <div class="container py-5"> 
+    <div class="card border-0 shadow-sm borda-destaque">
+      <div class="card-body p-4 p-md-5">
+        <span class="badge badge-develas mb-3">{{ vaga.modalidade }}</span>
+        <h1 class="fw-bold text-develas">{{ vaga.titulo }}</h1>
+        <p class="lead text-muted">{{ vaga.empresa }} · {{ vaga.cidade }}</p>
+        <p>
+          <span class="badge text-bg-light border">{{ vaga.area }}</span>
+          <span class="badge text-bg-light border">{{ vaga.nivel }}</span>
+        </p>
 
-    <a class="btn btn-borda btn-sm mb-4" href="{% url 'mural' %}"> 
+        {% if vaga.aberta %}
+          <p class="fw-semibold">Inscrições até {{ vaga.prazo|date:"d/m/Y" }}</p>
+        {% else %}
+          <div class="alert alert-secondary">
+            Esta vaga encerrou as inscrições em {{ vaga.prazo|date:"d/m/Y" }}.
+          </div>
+        {% endif %}
 
-      ← Voltar para o mural 
+        <h2 class="h5 mt-4">Sobre a vaga</h2>
+        <p>{{ vaga.descricao|default:"Descrição em breve." }}</p>
 
-    </a> 
+        <h2 class="h5 mt-4">Sua compatibilidade: {{ vaga.compatibilidade }}%</h2>
+        <div class="progress mb-3" role="progressbar" aria-label="Compatibilidade">
+          <div class="progress-bar bg-develas"
+               style="width: {{ vaga.compatibilidade }}%"></div>
+        </div>
+        <p>
+          {% for skill in vaga.skills %}
+            {% if skill in vaga.faltam %}
+              <span class="badge rounded-pill text-bg-light border">{{ skill }}</span>
+            {% else %}
+              <span class="badge rounded-pill badge-develas">✓ {{ skill }}</span>
+            {% endif %}
+          {% endfor %}
+        </p>
+        {% if vaga.faltam %}
+          <p class="small text-muted">Para estudar: {{ vaga.faltam|join:", " }}.</p>
+        {% else %}
+          <p class="small text-muted">Você já tem todas as skills pedidas!</p>
+        {% endif %}
 
-    <div class="card border-0 shadow-sm borda-destaque"> 
-
-      <div class="card-body p-4 p-md-5"> 
-
-        <span class="badge badge-develas mb-3">{{ vaga.modalidade }}</span> 
-
-        <h1 class="fw-bold text-develas">{{ vaga.titulo }}</h1> 
-
-        <p class="lead text-muted">{{ vaga.empresa }} · {{ vaga.cidade }}</p> 
-
-        <p> 
-
-          <span class="badge text-bg-light border">{{ vaga.area }}</span> 
-
-          <span class="badge text-bg-light border">{{ vaga.nivel }}</span> 
-
-        </p> 
-
-        <h2 class="h5 mt-4">Sobre a vaga</h2> 
-
-        <p>{{ vaga.descricao|default:"Descrição em breve." }}</p> 
-
-        <h2 class="h5 mt-4">Skills pedidas</h2> 
-
-        <p> 
-
-          {% for skill in vaga.skills %} 
-
-            <span class="badge rounded-pill text-bg-light border">{{ skill }}</span> 
-
-          {% endfor %} 
-
-        </p> 
-
-        <div class="d-flex flex-wrap gap-2 mt-4"> 
-
-          <button class="btn btn-develas" type="button" disabled> 
-
-            Candidaturas abrem em breve 
-
-          </button> 
-
-          <a class="btn btn-borda" 
-
-             href="{% url 'mural' %}?modalidade={{ vaga.modalidade|urlencode }}"> 
-
-            Mais vagas na modalidade {{ vaga.modalidade }} 
-
-          </a> 
-
-        </div> 
-
-      </div> 
-
-    </div> 
-
-  </div> 
-
-{% endblock %} 
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          {% if vaga.aberta %}
+            <button class="btn btn-develas" type="button" disabled>
+              Candidaturas abrem em breve
+            </button>
+          {% else %}
+            <button class="btn btn-secondary" type="button" disabled>
+              Vaga encerrada
+            </button>
+          {% endif %}
+          <a class="btn btn-borda"
+             href="{% url 'mural' %}?modalidade={{ vaga.modalidade|urlencode }}">
+            Mais vagas na modalidade {{ vaga.modalidade }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

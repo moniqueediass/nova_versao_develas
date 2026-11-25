@@ -1,113 +1,77 @@
-{% extends "vagas/base.html" %} 
+{% extends "vagas/base.html" %}
 
-{% block titulo %}Mural de vagas | DevElas{% endblock %} 
+{% block titulo %}Mural de vagas | DevElas{% endblock %}
 
-{% block conteudo %} 
+{% block conteudo %}
+  <div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+      <div>
+        <h1 class="fw-bold text-develas mb-1">Mural de vagas</h1>
+        {% if modalidade %}
+          <p class="text-muted mb-0">
+            {{ total }} vaga{{ total|pluralize }} na modalidade {{ modalidade }}.
+          </p>
+        {% else %}
+          <p class="text-muted mb-0">
+            {{ total }} vaga{{ total|pluralize }} esperando por você.
+          </p>
+        {% endif %}
+      </div>
+      <div class="btn-group" role="group" aria-label="Filtrar por modalidade">
+        <a class="btn btn-borda {% if not modalidade %}active{% endif %}"
+           href="{% url 'mural' %}">Todas</a>
+        <a class="btn btn-borda {% if modalidade == 'Remoto' %}active{% endif %}"
+           href="{% url 'mural' %}?modalidade=Remoto">Remoto</a>
+        <a class="btn btn-borda {% if modalidade == 'Híbrido' %}active{% endif %}"
+           href="{% url 'mural' %}?modalidade=Híbrido">Híbrido</a>
+        <a class="btn btn-borda {% if modalidade == 'Presencial' %}active{% endif %}"
+           href="{% url 'mural' %}?modalidade=Presencial">Presencial</a>
+      </div>
+    </div>
 
-  <div class="container py-5"> 
-
-    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4"> 
-
-      <div> 
-
-        <h1 class="fw-bold text-develas mb-1">Mural de vagas</h1> 
-
-        {% if modalidade %} 
-
-          <p class="text-muted mb-0"> 
-
-            {{ total }} vaga{{ total|pluralize }} na modalidade {{ modalidade }}. 
-
-          </p> 
-
-        {% else %} 
-
-          <p class="text-muted mb-0"> 
-
-            {{ total }} vaga{{ total|pluralize }} esperando por você. 
-
-          </p> 
-
-        {% endif %} 
-
-      </div> 
-
-      <div class="btn-group" role="group" aria-label="Filtrar por modalidade"> 
-
-        <a class="btn btn-borda {% if not modalidade %}active{% endif %}" 
-
-           href="{% url 'mural' %}">Todas</a> 
-
-        <a class="btn btn-borda {% if modalidade == 'Remoto' %}active{% endif %}" 
-
-           href="{% url 'mural' %}?modalidade=Remoto">Remoto</a> 
-
-        <a class="btn btn-borda {% if modalidade == 'Híbrido' %}active{% endif %}" 
-
-           href="{% url 'mural' %}?modalidade=Híbrido">Híbrido</a> 
-
-        <a class="btn btn-borda {% if modalidade == 'Presencial' %}active{% endif %}" 
-
-           href="{% url 'mural' %}?modalidade=Presencial">Presencial</a> 
-
-      </div> 
-
-    </div> 
-
-    {% if vagas %} 
-
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"> 
-
-        {% for vaga in vagas %} 
-
-          <div class="col"> 
-
-            <div class="card h-100 border-0 shadow-sm borda-destaque"> 
-
-              <div class="card-body"> 
-
-                <span class="badge badge-develas mb-2">{{ vaga.modalidade }}</span> 
-
-                <h2 class="h5 card-title">{{ vaga.titulo }}</h2> 
-
-                <p class="text-muted mb-3">{{ vaga.empresa }} · {{ vaga.cidade }}</p> 
-
-                <p class="mb-2"> 
-
-                  <span class="badge text-bg-light border">{{ vaga.area }}</span> 
-
-                  <span class="badge text-bg-light border">{{ vaga.nivel }}</span> 
-
-                </p> 
-
-                <p class="small text-muted mb-0">{{ vaga.skills|join:" · " }}</p> 
-
-              </div> 
-
-              <div class="card-footer bg-transparent border-0 pb-3"> 
-
-                <a class="btn btn-develas w-100" href="{% url 'detalhe' vaga.id %}"> 
-
-                  Ver vaga 
-
-                </a> 
-
-              </div> 
-
-            </div> 
-
-          </div> 
-
-        {% endfor %} 
-
-      </div> 
-
-    {% else %} 
-
-      <div class="alert alert-light border">Nenhuma vaga por aqui ainda.</div> 
-
-    {% endif %} 
-
-  </div> 
-
-{% endblock %} 
+    {% if vagas %}
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for vaga in vagas %}
+          <div class="col">
+            <div class="card h-100 border-0 shadow-sm borda-destaque
+                        {% if not vaga.aberta %}opacity-75{% endif %}">
+              <div class="card-body">
+                <div class="d-flex justify-content-between gap-2 mb-2">
+                  <span class="badge badge-develas">{{ vaga.modalidade }}</span>
+                  {% if vaga.aberta %}
+                    <span class="badge text-bg-light border">
+                      {{ vaga.compatibilidade }}% compatível
+                    </span>
+                  {% else %}
+                    <span class="badge text-bg-secondary">Encerrada</span>
+                  {% endif %}
+                </div>
+                <h2 class="h5 card-title">{{ vaga.titulo }}</h2>
+                <p class="text-muted mb-3">{{ vaga.empresa }} · {{ vaga.cidade }}</p>
+                <p class="mb-2">
+                  <span class="badge text-bg-light border">{{ vaga.area }}</span>
+                  <span class="badge text-bg-light border">{{ vaga.nivel }}</span>
+                </p>
+                <p class="small text-muted mb-1">{{ vaga.skills|join:" · " }}</p>
+                {% if vaga.aberta %}
+                  <p class="small mb-0">
+                    Inscrições até {{ vaga.prazo|date:"d/m/Y" }}
+                  </p>
+                {% else %}
+                  <p class="small mb-0">Inscrições encerradas</p>
+                {% endif %}
+              </div>
+              <div class="card-footer bg-transparent border-0 pb-3">
+                <a class="btn btn-develas w-100" href="{% url 'detalhe' vaga.id %}">
+                  Ver vaga
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-light border">Nenhuma vaga por aqui ainda.</div>
+    {% endif %}
+  </div>
+{% endblock %}
